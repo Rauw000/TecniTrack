@@ -10,14 +10,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import com.tecnitrack.repository.UsuarioRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @Controller
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService,
+            UsuarioRepository usuarioRepository) {
+
         this.usuarioService = usuarioService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @InitBinder("usuario")
@@ -55,6 +62,63 @@ public class UsuarioController {
             model.addAttribute("error", e.getMessage());
 
             return "usuario/registro";
+        }
+    }
+    // HU04 - Mostrar datos de contacto
+
+    @GetMapping("/usuario/perfil")
+    public String mostrarPerfil(Authentication authentication, Model model) {
+
+        String correoActual = authentication.getName();
+
+        Usuario usuario = usuarioRepository.findByCorreo(correoActual)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "No se encontró el usuario"));
+
+        model.addAttribute("usuario", usuario);
+
+        return "usuario/perfil";
+    }
+
+// HU04 - Actualizar datos de contacto
+    @PostMapping("/usuario/perfil")
+    public String actualizarPerfil(
+            Authentication authentication,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("correo") String correo,
+            @RequestParam("telefono") String telefono,
+            jakarta.servlet.http.HttpServletRequest request,
+            jakarta.servlet.http.HttpServletResponse response,
+            Model model) {
+
+        String correoActual = authentication.getName();
+
+        try {
+
+            Usuario usuario = usuarioService.actualizarDatosContacto(
+                    correoActual, nombre, correo, telefono);
+
+            // Si cambió el correo, debe iniciar sesión nuevamente
+            if (!correoActual.equals(usuario.getCorreo())) {
+
+                new SecurityContextLogoutHandler()
+                        .logout(request, response, authentication);
+
+                return "redirect:/login?correoActualizado";
+            }
+
+            return "redirect:/usuario/perfil?exito";
+
+        } catch (IllegalArgumentException e) {
+
+            Usuario usuario = usuarioRepository.findByCorreo(correoActual)
+                    .orElseThrow(() -> new IllegalStateException(
+                    "No se encontró el usuario"));
+
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("error", e.getMessage());
+
+            return "usuario/perfil";
         }
     }
 }

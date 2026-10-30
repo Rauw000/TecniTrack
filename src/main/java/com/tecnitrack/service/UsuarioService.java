@@ -84,4 +84,51 @@ public class UsuarioService {
         // Guardar el usuario en MySQL
         return usuarioRepository.save(usuario);
     }
+
+    @Transactional
+    public Usuario actualizarDatosContacto(String correoActual,
+            String nombre, String correoNuevo, String telefono) {
+
+        // Buscar al usuario autenticado
+        Usuario usuario = usuarioRepository.findByCorreo(correoActual)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "No se encontró el usuario"));
+
+        // Validar campos obligatorios
+        if (nombre == null || nombre.isBlank()
+                || correoNuevo == null || correoNuevo.isBlank()
+                || telefono == null || telefono.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Todos los campos son obligatorios");
+        }
+
+        // Normalizar los datos
+        nombre = nombre.trim();
+        correoNuevo = correoNuevo.trim().toLowerCase();
+        telefono = telefono.trim();
+
+        // Validar formato del correo
+        if (!correoNuevo.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException(
+                    "El correo electrónico no es válido");
+        }
+
+        // Verificar que el nuevo correo no pertenezca a otro usuario
+        if (!correoNuevo.equals(usuario.getCorreo())
+                && usuarioRepository.existsByCorreo(correoNuevo)) {
+
+            throw new IllegalArgumentException(
+                    "El correo ya está registrado");
+        }
+
+        // Actualizar únicamente los datos de contacto
+        usuario.setNombre(nombre);
+        usuario.setCorreo(correoNuevo);
+        usuario.setTelefono(telefono);
+
+        // Guardar los cambios en MySQL
+        return usuarioRepository.save(usuario);
+    }
+
 }

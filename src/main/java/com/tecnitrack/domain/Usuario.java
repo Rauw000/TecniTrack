@@ -8,7 +8,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario;
+    private Long idUsuario; 
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
