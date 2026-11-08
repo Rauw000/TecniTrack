@@ -23,7 +23,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                        "/",
                         "/registro",
+                        "/servicios",
                         "/css/**",
                         "/js/**",
                         "/img/**"
@@ -56,6 +58,7 @@ public class SecurityConfig {
         return http.build();
     }
 // Esto permite que el filtro se ejecute únicamente dentro de la cadena de Spring Security.
+
     @Bean
     public FilterRegistrationBean<UsuarioActivoFilter> usuarioActivoFilterRegistration(
             UsuarioActivoFilter filter) {

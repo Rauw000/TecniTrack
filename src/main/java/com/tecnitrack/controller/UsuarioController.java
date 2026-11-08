@@ -64,7 +64,7 @@ public class UsuarioController {
             return "usuario/registro";
         }
     }
-    // HU04 - Mostrar datos de contacto
+    //  Mostrar datos de contacto
 
     @GetMapping("/usuario/perfil")
     public String mostrarPerfil(Authentication authentication, Model model) {
