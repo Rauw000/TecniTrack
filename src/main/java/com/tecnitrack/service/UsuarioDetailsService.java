@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import com.tecnitrack.domain.UsuarioPrincipal;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 @Service
 public class UsuarioDetailsService implements UserDetailsService {
@@ -25,12 +27,15 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                 "Credenciales incorrectas"));
 
-        return User.builder()
-                .username(usuario.getCorreo())
-                .password(usuario.getContrasenaHash())
-                .roles(usuario.getRol().getNombre()
-                        .replace("Técnico", "Tecnico"))
-                .disabled(!Boolean.TRUE.equals(usuario.getActivo()))
-                .build();
+        String nombreRol = usuario.getRol().getNombre()
+                .replace("Técnico", "Tecnico");
+
+        return new UsuarioPrincipal(
+                usuario.getCorreo(),
+                usuario.getContrasenaHash(),
+                Boolean.TRUE.equals(usuario.getActivo()),
+                AuthorityUtils.createAuthorityList("ROLE_" + nombreRol),
+                usuario.getVersionSesion()
+        );
     }
 }

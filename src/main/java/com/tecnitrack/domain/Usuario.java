@@ -8,7 +8,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario; 
+    private Long idUsuario;
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
@@ -28,6 +28,10 @@ public class Usuario {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    // Versión de sesión para invalidar sesiones anteriores
+    @Column(name = "version_sesion", nullable = false)
+    private Long versionSesion = 0L;
 
     public Usuario() {
     }
@@ -86,5 +90,13 @@ public class Usuario {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public Long getVersionSesion() {
+        return versionSesion;
+    }
+
+    public void setVersionSesion(Long versionSesion) {
+        this.versionSesion = versionSesion;
     }
 }

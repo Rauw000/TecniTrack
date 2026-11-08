@@ -4,9 +4,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
 @Configuration
 public class SecurityConfig {
+
+    private final UsuarioActivoFilter usuarioActivoFilter;
+
+    public SecurityConfig(UsuarioActivoFilter usuarioActivoFilter) {
+        this.usuarioActivoFilter = usuarioActivoFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -41,7 +49,22 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
                 );
+        http.addFilterAfter(
+                usuarioActivoFilter,
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+// Esto permite que el filtro se ejecute únicamente dentro de la cadena de Spring Security.
+    @Bean
+    public FilterRegistrationBean<UsuarioActivoFilter> usuarioActivoFilterRegistration(
+            UsuarioActivoFilter filter) {
+
+        FilterRegistrationBean<UsuarioActivoFilter> registration
+                = new FilterRegistrationBean<>(filter);
+
+        registration.setEnabled(false);
+
+        return registration;
     }
 }
