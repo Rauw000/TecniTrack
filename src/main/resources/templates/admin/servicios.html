@@ -13,16 +13,7 @@
 
     <body class="bg-light">
 
-        <nav class="navbar navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand fw-bold" th:href="@{/inicio}">
-                    TecniTrack
-                </a>
-                <span class="navbar-text text-white">
-                    Administración de servicios
-                </span>
-            </div>
-        </nav>
+        <header th:replace="~{general/fragmentos :: headerAdmin}"></header>
 
         <main class="container py-4">
 
@@ -223,6 +214,5 @@
         </main>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     </body>
 </html>
