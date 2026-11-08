@@ -9,6 +9,8 @@ import com.tecnitrack.repository.UsuarioRepository;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import com.tecnitrack.domain.HistorialEstado;
+import com.tecnitrack.repository.HistorialEstadoRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -17,15 +19,18 @@ public class OrdenReparacionService {
     private final EquipoRepository equipoRepository;
     private final OrdenReparacionRepository ordenRepository;
     private final UsuarioRepository usuarioRepository;
+    private final HistorialEstadoRepository historialRepository;
 
     public OrdenReparacionService(
             EquipoRepository equipoRepository,
             OrdenReparacionRepository ordenRepository,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            HistorialEstadoRepository historialRepository) {
 
         this.equipoRepository = equipoRepository;
         this.ordenRepository = ordenRepository;
         this.usuarioRepository = usuarioRepository;
+        this.historialRepository = historialRepository;
     }
 
     @Transactional
@@ -166,6 +171,74 @@ public class OrdenReparacionService {
         orden.getEquipo().getNumeroSerie();
 
         return orden;
+    }
+
+    @Transactional
+    public OrdenReparacion registrarRecepcion(
+            Long idOrden,
+            String correoAdministrador,
+            String condicionRecepcion,
+            String accesorios) {
+
+        // 1. Validar campos obligatorios
+        validarCampo(condicionRecepcion, "La condición física");
+        validarCampo(accesorios, "Los accesorios");
+
+        validarLongitud(condicionRecepcion, 2000,
+                "La condición física");
+        validarLongitud(accesorios, 1000,
+                "Los accesorios");
+
+        // 2. Identificar al administrador autenticado
+        Usuario administrador = usuarioRepository
+                .findByCorreo(correoAdministrador)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "No se encontró al administrador."));
+
+        if (!Boolean.TRUE.equals(administrador.getActivo())
+                || administrador.getRol() == null
+                || !"Administrador".equals(
+                        administrador.getRol().getNombre())) {
+
+            throw new IllegalArgumentException(
+                    "Solo un administrador activo puede recibir equipos.");
+        }
+
+        // 3. Buscar la orden
+        OrdenReparacion orden = ordenRepository.buscarOrdenParaRecepcion(idOrden)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "La orden de reparación no existe."));
+
+        // 4. Evitar recibir una orden dos veces
+        if (!"Por recibir".equals(orden.getEstadoActual())
+                || orden.getFechaRecepcion() != null) {
+
+            throw new IllegalArgumentException(
+                    "Esta orden ya fue recibida o no está pendiente de recepción.");
+        }
+
+        // 5. Registrar los datos de recepción
+        String estadoAnterior = orden.getEstadoActual();
+
+        orden.setCondicionRecepcion(condicionRecepcion.trim());
+        orden.setAccesorios(accesorios.trim());
+        orden.setFechaRecepcion(LocalDateTime.now());
+        orden.setAdminRecepcion(administrador);
+        orden.setEstadoActual("Recibido");
+
+        // 6. Guardar el cambio de estado
+        HistorialEstado historial = new HistorialEstado();
+
+        historial.setOrden(orden);
+        historial.setUsuario(administrador);
+        historial.setEstadoAnterior(estadoAnterior);
+        historial.setEstadoNuevo("Recibido");
+        historial.setFechaCambio(LocalDateTime.now());
+
+        historialRepository.save(historial);
+
+        // 7. Guardar la orden
+        return ordenRepository.save(orden);
     }
 
 }
