@@ -25,8 +25,18 @@ public interface OrdenReparacionRepository
     // Contar órdenes según su estado
     long countByEstadoActual(String estadoActual);
 
+    // Obtener las últimas 5 órdenes registradas
+    List<OrdenReparacion> findTop5ByOrderByFechaSolicitudDesc();
+
     // Buscar una orden por su número único
     boolean existsByNumeroOrden(String numeroOrden);
+
+    // Todas las órdenes ordenadas por fecha
+    List<OrdenReparacion> findAllByOrderByFechaSolicitudDesc();
+
+    // Órdenes filtradas por estado
+    List<OrdenReparacion> findByEstadoActualOrderByFechaSolicitudDesc(
+            String estadoActual);
 
     // Bloquear una orden mientras se registra su recepción
     @Lock(LockModeType.PESSIMISTIC_WRITE)
