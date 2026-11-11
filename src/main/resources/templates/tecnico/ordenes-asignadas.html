@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mis órdenes - TecniTrack</title>
+<style>body{font-family:Arial,sans-serif;background:#f3f6fa;color:#223;padding:30px}main{max-width:1000px;margin:auto;background:white;padding:25px;border-radius:12px}table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd}a{color:#1459a5}nav{display:flex;justify-content:space-between}.ok{color:#176a30}.error{color:#ac2525}@media(max-width:700px){main{overflow-x:auto;padding:12px}body{padding:8px}}</style></head>
+<body><main><nav><a th:href="@{/inicio}">Inicio</a><form th:action="@{/logout}" method="post"><button type="submit">Cerrar sesión</button></form></nav>
+<h1>HU13 · Órdenes asignadas</h1><p>Órdenes vinculadas a tu usuario técnico.</p>
+<p class="ok" th:if="${exito}" th:text="${exito}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+<p th:if="${#lists.isEmpty(ordenes)}">No tenés órdenes asignadas todavía. Un administrador debe asignarte una orden.</p>
+<table th:unless="${#lists.isEmpty(ordenes)}"><thead><tr><th>Número</th><th>Equipo</th><th>Falla reportada</th><th>Estado</th><th>Fecha</th><th>Diagnóstico</th></tr></thead>
+<tbody><tr th:each="orden : ${ordenes}"><td th:text="${orden.numeroOrden}">ORD-001</td>
+<td th:text="${orden.equipo.tipo + ' · ' + orden.equipo.marca + ' ' + orden.equipo.modelo}">Equipo</td>
+<td th:text="${orden.fallaReportada}">Falla</td><td th:text="${orden.estadoActual}">Estado</td>
+<td th:text="${#temporals.format(orden.fechaSolicitud,'dd/MM/yyyy HH:mm')}">Fecha</td>
+<td><a th:href="@{/tecnico/ordenes/{id}/diagnostico(id=${orden.idOrden})}">Ver / registrar</a></td></tr></tbody></table>
+</main></body></html>

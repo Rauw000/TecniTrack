@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Diagnóstico - TecniTrack</title>
+<style>body{font-family:Arial,sans-serif;background:#f3f6fa;color:#223;padding:30px}main{max-width:740px;margin:auto;background:#fff;padding:28px;border-radius:12px}label{display:block;margin:18px 0 5px;font-weight:bold}textarea{width:100%;min-height:90px;box-sizing:border-box;padding:10px}button{background:#1459a5;border:none;color:white;padding:12px 24px;cursor:pointer;border-radius:6px}.error{color:#ac2525}.info{background:#eef4fc;padding:14px;border-radius:8px}dt{font-weight:bold;margin-top:10px}dd{margin-left:0;white-space:pre-wrap}@media(max-width:700px){body{padding:8px}main{padding:14px}}</style></head>
+<body><main><a th:href="@{/tecnico/ordenes}">← Volver a mis órdenes</a><h1>HU14 · Diagnóstico técnico</h1>
+<div class="info"><strong th:text="${orden.numeroOrden}">Orden</strong>
+<p>Equipo: <span th:text="${orden.equipo.tipo + ' · ' + orden.equipo.marca + ' ' + orden.equipo.modelo}"></span></p>
+<p>Estado: <span th:text="${orden.estadoActual}"></span></p>
+<p>Falla del cliente: <span th:text="${orden.fallaReportada}"></span></p></div>
+<p class="error" th:if="${error}" th:text="${error}"></p>
+<section th:if="${diagnostico != null}"><h2>Diagnóstico guardado</h2><dl>
+<dt>Problema identificado</dt><dd th:text="${diagnostico.problemaIdentificado}"></dd>
+<dt>Diagnóstico técnico</dt><dd th:text="${diagnostico.diagnosticoTecnico}"></dd>
+<dt>Reparación recomendada</dt><dd th:text="${diagnostico.reparacionRecomendada}"></dd>
+<dt>Fecha</dt><dd th:text="${#temporals.format(diagnostico.fechaDiagnostico,'dd/MM/yyyy HH:mm')}"></dd></dl>
+<p>Esta orden ya tiene un diagnóstico registrado.</p></section>
+<form th:if="${diagnostico == null}" th:action="@{/tecnico/ordenes/{id}/diagnostico(id=${orden.idOrden})}" method="post">
+<label for="problema">Problema identificado</label><textarea id="problema" name="problemaIdentificado" maxlength="2000" required></textarea>
+<label for="detalle">Diagnóstico técnico</label><textarea id="detalle" name="diagnosticoTecnico" maxlength="4000" required></textarea>
+<label for="reparacion">Reparación recomendada</label><textarea id="reparacion" name="reparacionRecomendada" maxlength="2000" required></textarea>
+<p><button type="submit">Guardar diagnóstico</button></p></form></main></body></html>

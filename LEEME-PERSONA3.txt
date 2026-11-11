@@ -1,0 +1,14 @@
+TECNITrack - Archivos nuevos para HU13 y HU14
+
+Este ZIP se agrega SOBRE la carpeta del repositorio actual de GitHub Desktop, NO se abre como otro proyecto.
+Tiene 9 archivos nuevos, no cambia application.properties, SecurityConfig, Usuario, Rol ni pom.xml.
+
+HU13: http://localhost:8080/tecnico/ordenes
+HU14: http://localhost:8080/tecnico/ordenes/{id}/diagnostico
+
+El proyecto solo mostrará órdenes cuando exista un usuario con rol Técnico y alguna orden asignada a él.
+Las entidades Equipo y OrdenReparacion se copiaron de la rama Persona 1; al integrar ramas deben conservar una sola versión compatible.
+
+IMPORTANTE: no subas tu contraseña de MySQL a GitHub. Excluir application.properties del commit si contiene credenciales personales.
+
+Se verificó la estructura de archivos pero no se ejecutó Maven/MySQL en este entorno.
