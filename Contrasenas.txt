@@ -1,0 +1,4 @@
+Cliente: prueba2@correo.com /Prueba123
+Administrador: admin@tecnitrack.com / Admin123
+Tecnico: tecnico.prueba@tecnitrack.com / Tecnico.prueba1
+Tecnico: tecnico1@tenictrack.com / Tecnico123
